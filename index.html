@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Apex Docs</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0d'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-size='18' font-weight='700' fill='%236ee7a8' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --panel: #141418;
+    --panel-2: #1b1b21;
+    --line: #2a2a33;
+    --ink: #e8e8ee;
+    --muted: #9a9aa8;
+    --accent: #6ee7a8;
+    --page: #ffffff;
+    --page-ink: #17171c;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    flex-wrap: wrap;
+  }
+  .brand { font-weight: 650; letter-spacing: .2px; }
+  .brand span { color: var(--accent); }
+  .tabs { display: flex; gap: 4px; margin-left: auto; }
+  .tab {
+    background: transparent; color: var(--muted); border: 1px solid transparent;
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  }
+  .tab[aria-selected="true"] { background: var(--panel-2); color: var(--ink); border-color: var(--line); }
+  .status { color: var(--muted); font-size: 12px; min-width: 90px; }
+
+  main { flex: 1; display: flex; min-height: 0; }
+  aside {
+    width: 240px; border-right: 1px solid var(--line); background: var(--panel);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  aside .side-head { padding: 10px; display: flex; gap: 6px; border-bottom: 1px solid var(--line); }
+  .doclist { overflow: auto; padding: 6px; flex: 1; }
+  .docitem {
+    padding: 8px 10px; border-radius: 8px; cursor: pointer; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 8px; align-items: center;
+  }
+  .docitem:hover { background: var(--panel-2); }
+  .docitem[aria-current="true"] { background: var(--panel-2); color: var(--ink); }
+  .docitem .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .docitem .x { opacity: 0; font-size: 11px; }
+  .docitem:hover .x { opacity: .7; }
+
+  section.workspace { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px;
+    border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  .toolbar button, .toolbar select, .toolbar input[type="color"] {
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 7px; padding: 5px 9px; cursor: pointer; font-size: 13px;
+  }
+  .toolbar button:hover { border-color: #3b3b47; }
+  .toolbar .sep { width: 1px; background: var(--line); margin: 2px 4px; }
+  .toolbar button.on { border-color: var(--accent); color: var(--accent); }
+
+  .canvas { flex: 1; overflow: auto; padding: 24px 16px 80px; }
+  .page {
+    background: var(--page); color: var(--page-ink);
+    width: 100%; max-width: 794px; margin: 0 auto;
+    padding: 64px 72px; min-height: 900px;
+    border-radius: 2px; box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    outline: none;
+  }
+  .page:focus { box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 0 2px rgba(110,231,168,.35); }
+  .page h1 { font-size: 26px; margin: 0 0 .5em; }
+  .page h2 { font-size: 21px; margin: 1.2em 0 .4em; }
+  .page h3 { font-size: 17px; margin: 1.1em 0 .35em; }
+  .page p { margin: 0 0 .7em; }
+  .page ul, .page ol { margin: 0 0 .8em; padding-left: 1.4em; }
+  .page table { border-collapse: collapse; width: 100%; margin: 0 0 1em; }
+  .page td, .page th { border: 1px solid #c9c9d2; padding: 6px 8px; vertical-align: top; }
+  .page a { color: #0b62c4; }
+  .page blockquote { margin: 0 0 1em; padding-left: 12px; border-left: 3px solid #c9c9d2; color: #55555f; }
+
+  .pane { padding: 22px; overflow: auto; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin: 0 auto 16px; max-width: 720px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 15px; }
+  .card p.hint { color: var(--muted); margin: 0 0 14px; font-size: 13px; }
+  .card label { display: block; color: var(--muted); font-size: 12px; margin: 12px 0 4px; }
+  .card input[type="file"], .card input[type="text"], .card input[type="number"] {
+    width: 100%; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13px;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 120px; }
+  button.primary {
+    background: var(--accent); color: #06210f; border: 0; border-radius: 9px;
+    padding: 9px 16px; font-weight: 650; cursor: pointer; font-size: 13px;
+  }
+  button.primary:disabled { opacity: .45; cursor: default; }
+  button.ghost {
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 9px; padding: 9px 14px; cursor: pointer; font-size: 13px;
+  }
+  .out { color: var(--muted); font-size: 12px; margin-top: 10px; white-space: pre-wrap; }
+  .warn {
+    border-left: 3px solid #d9a33a; background: #241d0f; color: #e8c98a;
+    padding: 10px 12px; border-radius: 6px; font-size: 12.5px; margin: 0 0 14px;
+  }
+  .hidden { display: none !important; }
+
+  @media print {
+    header, aside, .toolbar, .pane, .status { display: none !important; }
+    body { background: #fff; display: block; }
+    main, section.workspace, .canvas { display: block; padding: 0; overflow: visible; }
+    .page {
+      box-shadow: none; padding: 0; margin: 0; max-width: none; min-height: 0; width: auto;
+    }
+    @page { margin: 18mm; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Apex <span>Docs</span></div>
+  <div class="status" id="status">Ready</div>
+  <div class="tabs">
+    <button class="tab" id="tab-write" aria-selected="true">Write</button>
+    <button class="tab" id="tab-pdf" aria-selected="false">PDF tools</button>
+  </div>
+</header>
+
+<main>
+  <aside id="sidebar">
+    <div class="side-head">
+      <button class="ghost" id="new-doc" style="flex:1">New document</button>
+    </div>
+    <div class="doclist" id="doclist"></div>
+  </aside>
+
+  <section class="workspace" id="workspace">
+    <div class="toolbar" id="toolbar">
+      <select id="block" title="Paragraph style">
+        <option value="p">Body text</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+        <option value="blockquote">Quote</option>
+      </select>
+      <div class="sep"></div>
+      <button data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+      <button data-cmd="strikeThrough" title="Strikethrough">S̶</button>
+      <div class="sep"></div>
+      <button data-cmd="insertUnorderedList" title="Bulleted list">• List</button>
+      <button data-cmd="insertOrderedList" title="Numbered list">1. List</button>
+      <button data-cmd="outdent" title="Outdent">⇤</button>
+      <button data-cmd="indent" title="Indent">⇥</button>
+      <div class="sep"></div>
+      <button data-cmd="justifyLeft" title="Align left">L</button>
+      <button data-cmd="justifyCenter" title="Align centre">C</button>
+      <button data-cmd="justifyRight" title="Align right">R</button>
+      <div class="sep"></div>
+      <button id="insert-link" title="Insert link">Link</button>
+      <button id="insert-table" title="Insert a 3×3 table">Table</button>
+      <button data-cmd="removeFormat" title="Clear formatting">Clear</button>
+      <div class="sep"></div>
+      <button data-cmd="undo" title="Undo (Ctrl+Z)">↶</button>
+      <button data-cmd="redo" title="Redo">↷</button>
+      <div class="sep"></div>
+      <button id="export-docx" title="Download a real .docx">Export .docx</button>
+      <button id="export-pdf" title="Print / Save as PDF">Export PDF</button>
+      <button id="export-html" title="Download the document as a web page">.html</button>
+      <button id="import-docx" title="Open a .docx file">Import .docx</button>
+      <input type="file" id="docx-file" accept=".docx" class="hidden" />
+    </div>
+
+    <div class="canvas" id="canvas">
+      <div class="page" id="editor" contenteditable="true" spellcheck="true"></div>
+    </div>
+  </section>
+
+  <section class="pane hidden" id="pdfpane">
+    <div class="card">
+      <h2>Merge PDFs</h2>
+      <p class="hint">Pick two or more PDFs. They are joined in the order you select them.</p>
+      <input type="file" id="merge-files" accept="application/pdf" multiple />
+      <div style="margin-top:14px"><button class="primary" id="merge-go" disabled>Merge and download</button></div>
+      <div class="out" id="merge-out"></div>
+    </div>
+
+    <div class="card">
+      <h2>Extract pages</h2>
+      <p class="hint">One PDF in, a smaller PDF out. Page numbers start at 1, and you can write 2-5 or 1,4,9.</p>
+      <input type="file" id="extract-file" accept="application/pdf" />
+      <label for="extract-pages">Pages</label>
+      <input type="text" id="extract-pages" placeholder="2-5" />
+      <div style="margin-top:14px"><button class="primary" id="extract-go" disabled>Extract and download</button></div>
+      <div class="out" id="extract-out"></div>
+    </div>
+
+    <div class="card">
+      <h2>Split into single pages</h2>
+      <p class="hint">Downloads one PDF per page. Capped at 40 pages so a 300-page book does not bury you in files.</p>
+      <input type="file" id="split-file" accept="application/pdf" />
+      <div style="margin-top:14px"><button class="primary" id="split-go" disabled>Split and download</button></div>
+      <div class="out" id="split-out"></div>
+    </div>
+
+    <div class="card">
+      <div class="warn">
+        <b>Not here, on purpose:</b> PDF compression and digital signatures. Real compression needs a
+        rasteriser and a server, and doing it badly is worse than not doing it — the honest ways to
+        shrink a PDF are to re-save it from the original app or use the print-to-PDF path. Signatures
+        need a certificate, and a drawn image is not a signature in any sense a bank accepts.
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Apex Docs — everything runs in this tab. No server, no account, no upload.
+ * Documents live in localStorage. Exports are built in memory.
+ * ------------------------------------------------------------------ */
+
+const $ = (id) => document.getElementById(id);
+const editor = $("editor");
+const statusEl = $("status");
+
+const INDEX_KEY = "apexdocs:index";
+const DOC_KEY = (id) => "apexdocs:doc:" + id;
+
+let currentId = null;
+let saveTimer = null;
+
+function setStatus(text, sticky) {
+  statusEl.textContent = text;
+  if (sticky) return;
+  clearTimeout(setStatus._t);
+  setStatus._t = setTimeout(() => { statusEl.textContent = "Ready"; }, 2500);
+}
+
+/* ---------------------------- storage ----------------------------- */
+
+function readIndex() {
+  try { return JSON.parse(localStorage.getItem(INDEX_KEY) || "[]"); } catch { return []; }
+}
+function writeIndex(list) {
+  localStorage.setItem(INDEX_KEY, JSON.stringify(list));
+}
+
+function newDoc(title) {
+  const id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const doc = { id, title: title || "Untitled document", html: "", updatedAt: Date.now() };
+  localStorage.setItem(DOC_KEY(id), JSON.stringify(doc));
+  writeIndex([{ id, title: doc.title, updatedAt: doc.updatedAt }, ...readIndex()]);
+  return doc;
+}
+
+function loadDoc(id) {
+  const raw = localStorage.getItem(DOC_KEY(id));
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function saveNow() {
+  if (!currentId) return;
+  const doc = loadDoc(currentId);
+  if (!doc) return;
+  doc.html = editor.innerHTML;
+  // The first block becomes the title. Reading textContent would glue every block
+  // together ("HeadingFirst sentence…"), because it drops the line breaks.
+  const firstBlock = [...editor.children].find((el) => (el.textContent || "").trim());
+  const firstText = firstBlock ? firstBlock.textContent.trim().replace(/\s+/g, " ") : "";
+  if (firstText) doc.title = firstText.slice(0, 60);
+  doc.updatedAt = Date.now();
+  localStorage.setItem(DOC_KEY(currentId), JSON.stringify(doc));
+  const idx = readIndex().map((d) => (d.id === currentId ? { ...d, title: doc.title, updatedAt: doc.updatedAt } : d));
+  writeIndex(idx);
+  renderDocList();
+  setStatus("Saved");
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  setStatus("Editing…", true);
+  saveTimer = setTimeout(saveNow, 500);
+}
+
+function openDoc(id) {
+  const doc = loadDoc(id);
+  if (!doc) return;
+  currentId = id;
+  editor.innerHTML = doc.html || "";
+  renderDocList();
+  editor.focus();
+}
+
+function deleteDoc(id, ev) {
+  ev.stopPropagation();
+  const doc = loadDoc(id);
+  if (!confirm('Delete "' + (doc ? doc.title : "this document") + '"? This cannot be undone.')) return;
+  localStorage.removeItem(DOC_KEY(id));
+  writeIndex(readIndex().filter((d) => d.id !== id));
+  if (currentId === id) {
+    const next = readIndex()[0];
+    if (next) openDoc(next.id);
+    else { const d = newDoc(); openDoc(d.id); }
+  } else {
+    renderDocList();
+  }
+}
+
+function renderDocList() {
+  const list = $("doclist");
+  const docs = readIndex().sort((a, b) => b.updatedAt - a.updatedAt);
+  list.textContent = "";
+  for (const d of docs) {
+    const row = document.createElement("div");
+    row.className = "docitem";
+    row.setAttribute("aria-current", String(d.id === currentId));
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = d.title || "Untitled";
+    const x = document.createElement("span");
+    x.className = "x";
+    x.textContent = "delete";
+    x.title = "Delete this document";
+    x.addEventListener("click", (ev) => deleteDoc(d.id, ev));
+    row.append(name, x);
+    row.addEventListener("click", () => openDoc(d.id));
+    list.append(row);
+  }
+}
+
+/* ---------------------------- editing ----------------------------- */
+
+function exec(cmd, value) {
+  editor.focus();
+  document.execCommand(cmd, false, value);
+  scheduleSave();
+  syncToolbar();
+}
+
+function syncToolbar() {
+  for (const btn of document.querySelectorAll("[data-cmd]")) {
+    const cmd = btn.dataset.cmd;
+    let on = false;
+    try { on = document.queryCommandState(cmd); } catch { on = false; }
+    btn.classList.toggle("on", on);
+  }
+}
+
+$("block").addEventListener("change", (e) => {
+  exec("formatBlock", "<" + e.target.value + ">");
+});
+
+for (const btn of document.querySelectorAll("[data-cmd]")) {
+  btn.addEventListener("click", () => exec(btn.dataset.cmd));
+}
+
+$("insert-link").addEventListener("click", () => {
+  const url = prompt("Link address (https://…)");
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) { alert("Please start the link with http:// or https://"); return; }
+  exec("createLink", url);
+});
+
+$("insert-table").addEventListener("click", () => {
+  const rows = 3, cols = 3;
+  let html = "<table>";
+  for (let r = 0; r < rows; r++) {
+    html += "<tr>";
+    for (let c = 0; c < cols; c++) html += "<td><br></td>";
+    html += "</tr>";
+  }
+  html += "</table><p><br></p>";
+  exec("insertHTML", html);
+});
+
+editor.addEventListener("input", scheduleSave);
+editor.addEventListener("keyup", syncToolbar);
+editor.addEventListener("mouseup", syncToolbar);
+
+editor.addEventListener("paste", (e) => {
+  // Paste as clean text, so styling from Word or a web page does not smuggle itself in.
+  const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+  if (text) { e.preventDefault(); document.execCommand("insertText", false, text); }
+});
+
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); saveNow(); }
+});
+
+/* ------------------------- plain-HTML export ---------------------- */
+
+function download(filename, blob) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+function safeFilename(ext) {
+  const doc = currentId ? loadDoc(currentId) : null;
+  const base = (doc && doc.title ? doc.title : "document")
+    .replace(/[\\/:*?"<>|]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 60) || "document";
+  return base + "." + ext;
+}
+
+function fullHtml() {
+  const doc = currentId ? loadDoc(currentId) : null;
+  const title = (doc && doc.title) || "Document";
+
+  return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" +
+    escapeHtml(title) + "</title><style>body{font:16px/1.6 system-ui,sans-serif;" +
+    "max-width:760px;margin:48px auto;padding:0 20px;color:#17171c}" +
+    "table{border-collapse:collapse;width:100%}td,th{border:1px solid #c9c9d2;padding:6px 8px}</style>" +
+    "</head><body>" + editor.innerHTML + "</body></html>";
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
+/* --------------------------- .docx export ------------------------- *
+ * Walks the editor DOM and builds a real Word document. True .docx:
+ * Word opens it without the "different format" warning.
+ * ------------------------------------------------------------------ */
+
+const DOCX_HEADINGS = ["", "HEADING_1", "HEADING_2", "HEADING_3"];
+
+function inlineRuns(node, style) {
+  const runs = [];
+  const walk = (n, st) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      const text = n.nodeValue.replace(/\s+/g, " ");
+      if (text.trim() || text === " ") runs.push({ text, ...st });
+      return;
+    }
+    if (n.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = n.tagName.toLowerCase();
+    if (tag === "br") { runs.push({ text: "\n", ...st }); return; }
+    const next = { ...st };
+    if (tag === "b" || tag === "strong") next.bold = true;
+    if (tag === "i" || tag === "em") next.italic = true;
+    if (tag === "u") next.underline = true;
+    if (tag === "s" || tag === "strike" || tag === "del") next.strike = true;
+    if (tag === "code") next.mono = true;
+    const cs = n.style || {};
+    if (cs.fontWeight === "bold" || cs.fontWeight >= 600) next.bold = true;
+    if (cs.fontStyle === "italic") next.italic = true;
+    if ((cs.textDecoration || "").includes("underline")) next.underline = true;
+    if ((cs.textDecoration || "").includes("line-through")) next.strike = true;
+    for (const child of n.childNodes) walk(child, next);
+  };
+  for (const child of node.childNodes) walk(child, style);
+  return runs.filter((r) => r.text !== "");
+}
+
+function runsToTextRuns(runs) {
+  const d = window.docx;
+  if (!runs.length) return [new d.TextRun({ text: "" })];
+  return runs.map((r) => new d.TextRun({
+    text: r.text,
+    bold: !!r.bold,
+    italics: !!r.italic,
+    underline: r.underline ? {} : undefined,
+    strike: !!r.strike,
+    font: r.mono ? "Consolas" : undefined,
+  }));
+}
+
+function alignmentOf(el) {
+  const d = window.docx;
+  const cs = el.style ? (el.style.textAlign || "") : "";
+  if (cs === "center") return d.AlignmentType.CENTER;
+  if (cs === "right") return d.AlignmentType.RIGHT;
+  if (cs === "justify") return d.AlignmentType.JUSTIFIED;
+  return undefined;
+}
+
+function buildBlocks(root) {
+  const d = window.docx;
+  const out = [];
+  let orderedDepth = 0;
+
+  const pushParagraph = (runs, opts) => {
+    out.push(new d.Paragraph({
+      children: runsToTextRuns(runs),
+      ...opts,
+    }));
+  };
+
+  const handleBlock = (el) => {
+    const tag = el.tagName.toLowerCase();
+    if (tag === "ul" || tag === "ol") {
+      const isOrdered = tag === "ol";
+      if (isOrdered) orderedDepth++;
+      for (const li of el.children) {
+        if (li.tagName.toLowerCase() !== "li") continue;
+        const runs = inlineRuns(li, {});
+        pushParagraph(runs, isOrdered
+          ? { numbering: { reference: "apexnum", level: Math.min(orderedDepth - 1, 2) } }
+          : { bullet: { level: Math.min(orderedDepth, 2) } });
+      }
+      if (isOrdered) orderedDepth--;
+      return;
+    }
+    if (/^h[1-3]$/.test(tag)) {
+      const level = DOCX_HEADINGS[Number(tag[1])];
+      pushParagraph(inlineRuns(el, {}), {
+        heading: d.HeadingLevel[level],
+        alignment: alignmentOf(el),
+        spacing: { after: 120 },
+      });
+      return;
+    }
+    if (tag === "table") {
+      const rows = [];
+      for (const tr of el.querySelectorAll("tr")) {
+        const cells = [];
+        for (const cell of tr.children) {
+          cells.push(new d.TableCell({
+            children: [new d.Paragraph({ children: runsToTextRuns(inlineRuns(cell, {})) })],
+          }));
+        }
+        rows.push(new d.TableRow({ children: cells }));
+      }
+      if (rows.length) {
+        out.push(new d.Table({
+          rows,
+          width: { size: 100, type: d.WidthType.PERCENTAGE },
+        }));
+        out.push(new d.Paragraph(""));
+      }
+      return;
+    }
+    if (tag === "blockquote") {
+      pushParagraph(inlineRuns(el, {}), {
+        indent: { left: 480 },
+        spacing: { after: 120 },
+      });
+      return;
+    }
+    // p, div, and anything else: one paragraph per block.
+    const runs = inlineRuns(el, {});
+    if (runs.length) pushParagraph(runs, { alignment: alignmentOf(el), spacing: { after: 120 } });
+  };
+
+  // Walk top-level blocks; a bare text node becomes its own paragraph.
+  for (const node of root.childNodes) {
+    if (node.nodeType === Node.ELEMENT_NODE) handleBlock(node);
+    else if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
+      pushParagraph([{ text: node.nodeValue.replace(/\s+/g, " ") }], {});
+    }
+  }
+  if (!out.length) out.push(new d.Paragraph(""));
+  return out;
+}
+
+async function exportDocx() {
+  const d = window.docx;
+  if (!d) { alert("The Word library did not load. Check the connection and reload."); return; }
+  setStatus("Building .docx…", true);
+  try {
+    const doc = new d.Document({
+      creator: "Apex Docs",
+      title: safeFilename("docx"),
+      styles: {
+        default: {
+          document: { run: { font: "Calibri", size: 22 } }, // size is half-points
+        },
+      },
+      numbering: {
+        config: [{
+          reference: "apexnum",
+          levels: [0, 1, 2].map((lvl) => ({
+            level: lvl,
+            format: "decimal",
+            text: "%" + (lvl + 1) + ".",
+            alignment: d.AlignmentType.START,
+            style: { paragraph: { indent: { left: 720 * (lvl + 1), hanging: 260 } } },
+          })),
+        }],
+      },
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 11906, height: 16838 },   // A4 in twips
+            margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 },
+          },
+        },
+        children: buildBlocks(editor),
+      }],
+    });
+    const blob = await d.Packer.toBlob(doc);
+    download(safeFilename("docx"), blob);
+    setStatus("Exported .docx");
+  } catch (err) {
+    console.error(err);
+    setStatus("Export failed");
+    alert("Could not build the .docx: " + err.message);
+  }
+}
+
+/* --------------------------- .docx import ------------------------- */
+
+async function importDocx() {
+  $("docx-file").click();
+}
+
+$("docx-file").addEventListener("change", async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  if (!window.mammoth) { alert("The Word import library did not load. Check the connection and reload."); return; }
+  setStatus("Reading .docx…", true);
+  try {
+    const buf = await file.arrayBuffer();
+    const result = await window.mammoth.convertToHtml({ arrayBuffer: buf });
+    const html = result.value || "";
+    if (!html.trim()) { alert("That document appears to be empty."); return; }
+    const doc = newDoc(file.name.replace(/\.docx$/i, ""));
+    currentId = doc.id;
+    editor.innerHTML = html;
+    saveNow();
+    setStatus("Imported");
+  } catch (err) {
+    console.error(err);
+    setStatus("Import failed");
+    alert("Could not read that .docx: " + err.message);
+  }
+});
+
+/* ---------------------------- buttons ----------------------------- */
+
+$("new-doc").addEventListener("click", () => {
+  const doc = newDoc();
+  openDoc(doc.id);
+  setStatus("New document");
+});
+
+$("export-docx").addEventListener("click", exportDocx);
+$("import-docx").addEventListener("click", importDocx);
+
+$("export-html").addEventListener("click", () => {
+  download(safeFilename("html"), new Blob([fullHtml()], { type: "text/html" }));
+  setStatus("Exported .html");
+});
+
+$("export-pdf").addEventListener("click", () => {
+  // The browser's own PDF writer produces a perfect copy of what is on the page.
+  // A canvas-based converter would downgrade the text to an image; this does not.
+  setStatus("Choose “Save as PDF” in the print dialog", true);
+  setTimeout(() => window.print(), 120);
+});
+
+/* ---------------------------- PDF tools --------------------------- */
+
+const PDF = () => window.PDFLib;
+
+$("merge-files").addEventListener("change", (e) => {
+  $("merge-go").disabled = (e.target.files || []).length < 2;
+  $("merge-out").textContent = "";
+});
+
+$("extract-file").addEventListener("change", (e) => {
+  $("extract-go").disabled = !(e.target.files || []).length;
+  $("extract-out").textContent = "";
+});
+
+$("split-file").addEventListener("change", (e) => {
+  $("split-go").disabled = !(e.target.files || []).length;
+  $("split-out").textContent = "";
+});
+
+function parsePages(spec, pageCount) {
+  const wanted = new Set();
+  for (const part of String(spec || "").split(",")) {
+    const p = part.trim();
+    if (!p) continue;
+    const m = /^(\d+)\s*-\s*(\d+)$/.exec(p);
+    if (m) {
+      let a = Math.max(1, Number(m[1]));
+      let b = Math.min(pageCount, Number(m[2]));
+      if (a > b) [a, b] = [b, a];
+      for (let i = a; i <= b; i++) wanted.add(i - 1);
+      continue;
+    }
+    const n = Number(p);
+    if (Number.isInteger(n) && n >= 1 && n <= pageCount) wanted.add(n - 1);
+  }
+  return [...wanted].sort((a, b) => a - b);
+}
+
+$("merge-go").addEventListener("click", async () => {
+  const lib = PDF();
+  if (!lib) { alert("The PDF library did not load. Check the connection and reload."); return; }
+  const files = Array.from($("merge-files").files || []);
+  const out = $("merge-out");
+  try {
+    out.textContent = "Reading " + files.length + " files…";
+    const merged = await lib.PDFDocument.create();
+    for (const file of files) {
+      const src = await lib.PDFDocument.load(await file.arrayBuffer());
+      const pages = await merged.copyPages(src, src.getPageIndices());
+      for (const p of pages) merged.addPage(p);
+      out.textContent = "Merged " + file.name;
+    }
+    const bytes = await merged.save();
+    download("merged.pdf", new Blob([bytes], { type: "application/pdf" }));
+    out.textContent = "Done — " + merged.getPageCount() + " pages.";
+  } catch (err) {
+    console.error(err);
+    out.textContent = "Could not merge: " + err.message;
+  }
+});
+
+$("extract-go").addEventListener("click", async () => {
+  const lib = PDF();
+  if (!lib) { alert("The PDF library did not load. Check the connection and reload."); return; }
+  const file = ($("extract-file").files || [])[0];
+  const out = $("extract-out");
+  if (!file) return;
+  try {
+    const src = await lib.PDFDocument.load(await file.arrayBuffer());
+    const total = src.getPageCount();
+    const indices = parsePages($("extract-pages").value, total);
+    if (!indices.length) { out.textContent = "No valid pages for this document (" + total + " pages)."; return; }
+    const target = await lib.PDFDocument.create();
+    const pages = await target.copyPages(src, indices);
+    for (const p of pages) target.addPage(p);
+    const bytes = await target.save();
+    download("extracted.pdf", new Blob([bytes], { type: "application/pdf" }));
+    out.textContent = "Done — " + indices.length + " of " + total + " pages.";
+  } catch (err) {
+    console.error(err);
+    out.textContent = "Could not extract: " + err.message;
+  }
+});
+
+$("split-go").addEventListener("click", async () => {
+  const lib = PDF();
+  if (!lib) { alert("The PDF library did not load. Check the connection and reload."); return; }
+  const file = ($("split-file").files || [])[0];
+  const out = $("split-out");
+  if (!file) return;
+  const LIMIT = 40;
+  try {
+    const src = await lib.PDFDocument.load(await file.arrayBuffer());
+    const total = src.getPageCount();
+    const count = Math.min(total, LIMIT);
+    for (let i = 0; i < count; i++) {
+      const single = await lib.PDFDocument.create();
+      const [page] = await single.copyPages(src, [i]);
+      single.addPage(page);
+      const bytes = await single.save();
+      download("page-" + String(i + 1).padStart(3, "0") + ".pdf",
+        new Blob([bytes], { type: "application/pdf" }));
+      out.textContent = "Saved page " + (i + 1) + " of " + count + "…";
+      await new Promise((r) => setTimeout(r, 220)); // let the browser start each download
+    }
+    out.textContent = total > LIMIT
+      ? "Saved the first " + LIMIT + " of " + total + " pages. Use Extract for the rest."
+      : "Done — " + count + " files.";
+  } catch (err) {
+    console.error(err);
+    out.textContent = "Could not split: " + err.message;
+  }
+});
+
+/* ------------------------------ tabs ------------------------------ */
+
+function selectTab(which) {
+  const write = which === "write";
+  $("tab-write").setAttribute("aria-selected", String(write));
+  $("tab-pdf").setAttribute("aria-selected", String(!write));
+  $("workspace").classList.toggle("hidden", !write);
+  $("sidebar").classList.toggle("hidden", !write);
+  $("pdfpane").classList.toggle("hidden", write);
+}
+$("tab-write").addEventListener("click", () => selectTab("write"));
+$("tab-pdf").addEventListener("click", () => selectTab("pdf"));
+
+/* ------------------------------ boot ------------------------------ */
+
+(function boot() {
+  const docs = readIndex();
+  if (docs.length === 0) {
+    const doc = newDoc("My first document");
+    editor.innerHTML = "<h1>My first document</h1><p>Start typing. Everything saves on this device as you go.</p>";
+    currentId = doc.id;
+    saveNow();
+  } else {
+    openDoc(docs.sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
+  }
+  renderDocList();
+  syncToolbar();
+})();
+</script>
+</body>
+</html>
